@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request
 from linebot import LineBotApi, WebhookParser,WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
+from starlette.exceptions import HTTPException
 
 app = FastAPI()
 
