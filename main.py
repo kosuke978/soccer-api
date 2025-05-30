@@ -1,27 +1,26 @@
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
-from linebot.models import MessageEvent, TextMessage
-from fastapi import FastAPI, Request, BackgroundTasks, Header
+from linebot.models import MessageEvent, TextMessage, TextSendMessage
+from fastapi import FastAPI, Request, BackgroundTasks, Header, HTTPException
 from dotenv import load_dotenv
-from starlette.exceptions import HTTPException
 import os
 
+# 環境変数を読み込む
 load_dotenv()
 
-LINE_BOT_API=LineBotApi(os.environ["CHANNEL_ACCESS_TOKEN"])
-handler=WebhookHandler(os.environ["CHANNEL_SECRET"])
+# LINE API設定（.envから取得）
+LINE_BOT_API = LineBotApi(os.environ["CHANNEL_ACCESS_TOKEN"])
+handler = WebhookHandler(os.environ["CHANNEL_SECRET"])
+
+# FastAPI初期化
 app = FastAPI()
 
-
+# GETルート（ヘルスチェック）
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return {"message": "LINE BOT is running"}
 
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str = None):
-    return {"item_id": item_id, "q": q}
-
+# Webhookルート（LINEがPOSTする場所）
 @app.post("/callback")
 async def callback(
     request: Request,
@@ -39,16 +38,16 @@ async def callback(
 
     return "ok"
 
+# メッセージイベントハンドラ
 @handler.add(MessageEvent)
 def handle_message(event):
     message_text = event.message.text.lower()
-    
+
     if "こんにちは" in message_text:
-        message = TextMessage(text="こんにちは！！")
-        LINE_BOT_API.reply_message(event.reply_token, message)
+        message = TextSendMessage(text="こんにちは！！")
     elif "ありがとう" in message_text:
-        message = TextMessage(text="こちらこそー")
-        LINE_BOT_API.reply_message(event.reply_token, message)
-    else :
-        message = TextMessage(text="いつも使ってくれてありがとう")
-        LINE_BOT_API.reply_message(event.reply_token, message)
+        message = TextSendMessage(text="こちらこそー")
+    else:
+        message = TextSendMessage(text="いつも使ってくれてありがとう")
+
+    LINE_BOT_API.reply_message(event.reply_token, message)
