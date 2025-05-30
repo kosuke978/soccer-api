@@ -4,6 +4,15 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 import os
 from dotenv import load_dotenv
+from fastapi import FastAPI
+from fastapi.responses import PlainTextResponse
+
+app = FastAPI()
+
+@app.get("/", response_class=PlainTextResponse)
+async def root():
+    return "LINE BOT is running"
+
 
 load_dotenv()
 
