@@ -12,6 +12,8 @@ app = FastAPI()
 CHANNEL_ACCESS_TOKEN = os.getenv("CHANNEL_ACCESS_TOKEN")
 CHANNEL_SECRET = os.getenv("CHANNEL_SECRET")
 
+print(CHANNEL_ACCESS_TOKEN)
+
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 parser = WebhookParser(CHANNEL_SECRET)
 
@@ -43,3 +45,10 @@ async def callback(request: Request):
 # uvicorn main:app --host   
 #pip install fastapi uvicorn python-dotenv requests
 # pip install line-bot-sdk
+@handler.add(MessageEvent)
+def handle_message(event):
+     message_text = event.message.text.lower()
+     
+     if "こんにちは" in message_text:
+        message = TextMessage(text="こんにちは！！")
+        LINE_BOT_API.reply_message(event.reply_token, message)
