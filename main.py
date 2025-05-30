@@ -10,13 +10,15 @@ load_dotenv()
 LINE_BOT_API=LineBotApi(os.environ["CHANNEL_ACCESS_TOKEN"])
 handler=WebhookHandler(os.environ["CHANNEL_SECRET"])
 app = FastAPI()
+@app.get("/")
+def root():
+    return {"message": "LINE BOT is running"}
+
 
 CHANNEL_ACCESS_TOKEN = os.getenv("CHANNEL_ACCESS_TOKEN")
 CHANNEL_SECRET = os.getenv("CHANNEL_SECRET")
 
 print(CHANNEL_ACCESS_TOKEN)
-
-line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 parser = WebhookParser(CHANNEL_SECRET)
 
 
@@ -42,7 +44,6 @@ async def callback(request: Request):
 
 
 
-@handler.add(MessageEvent)
 def handle_message(event):
      message_text = event.message.text.lower()
      
