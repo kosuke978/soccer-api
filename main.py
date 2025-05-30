@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+LINE_BOT_API=LineBotApi(os.environ["CHANNEL_ACCESS_TOKEN"])
+handler=WebhookHandler(os.environ["CHANNEL_SECRET"])
 app = FastAPI()
 
 CHANNEL_ACCESS_TOKEN = os.getenv("CHANNEL_ACCESS_TOKEN")
@@ -39,12 +41,7 @@ async def callback(request: Request):
     return {"status": "ok"}
 
 
-#仮想環境に入ってね：Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
-# .\venv\Scripts\activate
-# uvicorn main:app --reload
-# uvicorn main:app --host   
-#pip install fastapi uvicorn python-dotenv requests
-# pip install line-bot-sdk
+
 @handler.add(MessageEvent)
 def handle_message(event):
      message_text = event.message.text.lower()
