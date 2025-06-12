@@ -22,66 +22,72 @@ app = FastAPI()
 LINE_BOT_API = LineBotApi(os.environ["CHANNEL_ACCESS_TOKEN"])
 handler = WebhookHandler(os.environ["CHANNEL_SECRET"])
 
-API_KEY=(os.environ["SOCCER_API_KEY"])
-TEAM_ID=259
-LEAGUE_ID=98
-SEASON=2025
-url="https://v3.football.api-sports.io/fixtures"
-headers={'x-apisports':API_KEY}
-params={'league':LEAGUE_ID,'season':SEASON,'team':TEAM_ID}
+API_KEY=os.environ["SOCCER_API_KEY"]
 
-print(f"{SEASON}シーズン　ガンバ大阪の試合結果を取得")
+TEAM_ID=42
+LEAGUE_ID=39
+SEASON=2022
 
-try:
-    r=requests.get(url,headers=headers,params=params)
-    r.raise_for_status()
-      # レスポンスをJSON形式で取得
-    data = r.json()
+def fetch_and_display_fixtures(team_id, league_id,season):
+    url="https://v3.football.api-sports.io/fixtures"
 
-    # 取得した試合結果をループで処理して表示
-    if data['results'] > 0:
-        fixtures = data['response']
-        # 試合日でソートする
-        sorted_fixtures = sorted(fixtures, key=lambda x: x['fixture']['date'])
 
-        for fixture in sorted_fixtures:
-            # 試合日と時間
-            fixture_date_utc = datetime.fromisoformat(fixture['fixture']['date'])
-            # 日本時間に変換 (UTC+9)
-            fixture_date_jst = fixture_date_utc.strftime('%Y-%m-%d %H:%M')
-            
-            # チーム名
-            home_team = fixture['teams']['home']['name']
-            away_team = fixture['teams']['away']['name']
-            
-            # スコア
-            home_goals = fixture['goals']['home']
-            away_goals = fixture['goals']['away']
+        
+    headers={'x-apisports-key':API_KEY}
+    params={'league':league_id,'season':season,'team':team_id}
 
-            # 試合ステータス
-            status = fixture['fixture']['status']['long']
+    try:
+        r=requests.get(url,headers=headers,params=params)
+        r.raise_for_status()
+        # レスポンスをJSON形式で取得
+        data = r.json()
 
-            print("-" * 40)
-            print(f"試合日: {fixture_date_jst} JST")
-            print(f"対戦: {home_team} vs {away_team}")
+        # 取得した試合結果をループで処理して表示
+        if data['results'] > 0:
+            fixtures = data['response']
+            # 試合日でソートする
+            sorted_fixtures = sorted(fixtures, key=lambda x: x['fixture']['date'])
 
-            # 試合が終わっている場合のみスコアを表示
-            if status == "Match Finished":
-                print(f"結果: {home_goals} - {away_goals}")
-            else:
-                print(f"ステータス: {status}")
+            for fixture in sorted_fixtures:
+                # 試合日と時間
+                fixture_date_utc = datetime.fromisoformat(fixture['fixture']['date'])
+                # 日本時間に変換 (UTC+9)
+                fixture_date_jst = fixture_date_utc.strftime('%Y-%m-%d %H:%M')
+                
+                # チーム名
+                home_team = fixture['teams']['home']['name']
+                away_team = fixture['teams']['away']['name']
+                
+                # スコア
+                home_goals = fixture['goals']['home']
+                away_goals = fixture['goals']['away']
 
-    else:
-        print("指定されたシーズンの試合データが見つかりませんでした。")
-        if data.get('errors'):
-            print("APIエラー:", data['errors'])
+                # 試合ステータス
+                status = fixture['fixture']['status']['long']
 
-except requests.exceptions.RequestException as e:
-    print(f"リクエストエラーが発生しました: {e}")
-except json.JSONDecodeError:
-    print("APIからのレスポンスがJSON形式ではありませんでした。")
-except KeyError:
-    print("APIからのレスポンスの形式が予期したものと異なります。")
+                print("-" * 40)
+                print(f"試合日: {fixture_date_jst} JST")
+                print(f"対戦: {home_team} vs {away_team}")
+
+                # 試合が終わっている場合のみスコアを表示
+                if status == "Match Finished":
+                    print(f"結果: {home_goals} - {away_goals}")
+                else:
+                    print(f"ステータス: {status}")
+
+        else:
+            print("指定されたシーズンの試合データが見つかりませんでした。")
+            if data.get('errors'):
+                print("APIエラー:", data['errors'])
+
+    except requests.exceptions.RequestException as e:
+        print(f"リクエストエラーが発生しました: {e}")
+    except json.JSONDecodeError:
+        print("APIからのレスポンスがJSON形式ではありませんでした。")
+    except KeyError:
+        print("APIからのレスポンスの形式が予期したものと異なります。")
+        
+fetch_and_display_fixtures(team_id=42, league_id=39, season=2022)
 
 
 @app.get("/")
