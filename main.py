@@ -28,64 +28,52 @@ TEAM_ID=42
 LEAGUE_ID=39
 SEASON=2022
 
-def fetch_and_display_fixtures(team_id, league_id,season):
-    url="https://v3.football.api-sports.io/fixtures"
-
-
-        
-    headers={'x-apisports-key':API_KEY}
-    params={'league':league_id,'season':season,'team':team_id}
+def fetch_and_display_fixtures(team_id, league_id, season):
+    url = "https://v3.football.api-sports.io/fixtures"
+    headers = {'x-apisports-key': API_KEY}
+    params = {'league': league_id, 'season': season, 'team': team_id}
+    messages = []
 
     try:
-        r=requests.get(url,headers=headers,params=params)
+        r = requests.get(url, headers=headers, params=params)
         r.raise_for_status()
-        # レスポンスをJSON形式で取得
         data = r.json()
 
-        # 取得した試合結果をループで処理して表示
         if data['results'] > 0:
             fixtures = data['response']
-            # 試合日でソートする
             sorted_fixtures = sorted(fixtures, key=lambda x: x['fixture']['date'])
 
             for fixture in sorted_fixtures:
-                # 試合日と時間
-                fixture_date_utc = datetime.fromisoformat(fixture['fixture']['date'])
-                # 日本時間に変換 (UTC+9)
+                fixture_date_utc = datetime.fromisoformat(fixture['fixture']['date'].replace("Z", "+00:00"))
                 fixture_date_jst = fixture_date_utc.strftime('%Y-%m-%d %H:%M')
-                
-                # チーム名
+
                 home_team = fixture['teams']['home']['name']
                 away_team = fixture['teams']['away']['name']
-                
-                # スコア
                 home_goals = fixture['goals']['home']
                 away_goals = fixture['goals']['away']
-
-                # 試合ステータス
                 status = fixture['fixture']['status']['long']
 
-                print("-" * 40)
-                print(f"試合日: {fixture_date_jst} JST")
-                print(f"対戦: {home_team} vs {away_team}")
-
-                # 試合が終わっている場合のみスコアを表示
                 if status == "Match Finished":
-                    print(f"結果: {home_goals} - {away_goals}")
+                    result = f"{fixture_date_jst} JST\n{home_team} {home_goals} - {away_goals} {away_team}"
                 else:
-                    print(f"ステータス: {status}")
+                    result = f"{fixture_date_jst} JST\n{home_team} vs {away_team}（{status}）"
+
+                messages.append(result)
 
         else:
-            print("指定されたシーズンの試合データが見つかりませんでした。")
+            messages.append("指定されたシーズンの試合データが見つかりませんでした。")
             if data.get('errors'):
-                print("APIエラー:", data['errors'])
+                messages.append(f"APIエラー: {data['errors']}")
 
     except requests.exceptions.RequestException as e:
-        print(f"リクエストエラーが発生しました: {e}")
+        messages.append(f"リクエストエラー: {e}")
     except json.JSONDecodeError:
-        print("APIからのレスポンスがJSON形式ではありませんでした。")
+        messages.append("APIからのレスポンスがJSON形式ではありませんでした。")
     except KeyError:
-        print("APIからのレスポンスの形式が予期したものと異なります。")
+        messages.append("APIからのレスポンスの形式が予期したものと異なります。")
+
+    return "\n\n".join(messages[:5])  # 直近5試合だけ返す（多すぎ防止）
+
         
 fetch_and_display_fixtures(team_id=42, league_id=39, season=2022)
 
