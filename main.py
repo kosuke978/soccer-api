@@ -120,16 +120,20 @@ def handle_message(event):
     if message_text == "おはよう":
         reply = TextSendMessage(text="おはよう")
     elif message_text == "画像":
-        image_url = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgz_KD4wcCk5Q0poPDsJhMGyFAT1FDHkRY5DdjxHriBddrGb7UmVyBFG4ox5Eg9DPD_t_qoP-nyuFwPQAe5wNBG9sK0XZgHnCma4sbDjsajU1uKYFCl_zYbTBjcCfcdWRmVfqlnkK7ICe6C/s876/sports_referee_var_pose.png"  # 必ずHTTPS URLにする
+        image_url = "https://blogger.googleusercontent.com/img/sports_referee_var_pose.png"
         reply = ImageSendMessage(
             original_content_url=image_url,
             preview_image_url=image_url
         )
+    elif message_text in ["試合", "試合結果", "fixture", "results"]:
+        fixture_text = fetch_and_display_fixtures(team_id=TEAM_ID, league_id=LEAGUE_ID, season=SEASON)
+        reply = TextSendMessage(text=fixture_text)
     else:
-        reply = TextSendMessage(text="「おはよう」または「画像」と送ってみてください。")
+        reply = TextSendMessage(text="「おはよう」「画像」「試合」などを送ってみてください。")
 
     try:
         LINE_BOT_API.reply_message(event.reply_token, reply)
     except Exception as e:
         print(f"Error sending message: {e}")
+
 
