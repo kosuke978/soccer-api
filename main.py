@@ -22,7 +22,7 @@ app = FastAPI()
 LINE_BOT_API = LineBotApi(os.environ["CHANNEL_ACCESS_TOKEN"])
 handler = WebhookHandler(os.environ["CHANNEL_SECRET"])
 
-API_KEY="soccerapi-key"
+API_KEY=(os.environ["SOCCER_API_KEY"])
 TEAM_ID=259
 LEAGUE_ID=98
 SEASON=2025
@@ -30,13 +30,13 @@ url="https://v3.football.api-sports.io/fixtures"
 headers={'x-apisports':API_KEY}
 params={'league':LEAGUE_ID,'season':SEASON,'team':TEAM_ID}
 
-print(f{SEASON}シーズン　ガンバ大阪の試合結果を取得)
+print(f"{SEASON}シーズン　ガンバ大阪の試合結果を取得")
 
 try:
-    r:requests.get(url,headers=headers,params=params)
-    r:raise_for_status()
+    r=requests.get(url,headers=headers,params=params)
+    r.raise_for_status()
       # レスポンスをJSON形式で取得
-    data = response.json()
+    data = r.json()
 
     # 取得した試合結果をループで処理して表示
     if data['results'] > 0:
