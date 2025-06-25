@@ -16,67 +16,119 @@ from datetime import datetime
 
 load_dotenv()
 
-app = FastAPI()
+app = FastAPI() 
 
-# 環境変数からトークンを取得
-LINE_BOT_API = LineBotApi(os.environ["CHANNEL_ACCESS_TOKEN"])
-handler = WebhookHandler(os.environ["CHANNEL_SECRET"])
+CHANNEL_ACCESS_TOKEN = os.environ.get("CHANNEL_ACCESS_TOKEN")
+CHANNEL_SECRET = os.environ.get("CHANNEL_SECRET")
+SOCCER_API_KEY = os.environ.get("SOCCER_API_KEY")
 
-API_KEY=os.environ["SOCCER_API_KEY"]
+if not all([CHANNEL_ACCESS_TOKEN,CHANNEL_SECRET,SOCCER_API_KEY])
+    print("エラー：必要な環境変数が設定されていません。")
+    exit()
 
-TEAM_ID=42
-LEAGUE_ID=39
-SEASON=2022
 
-def fetch_and_display_fixtures(team_id, league_id, season):
+# LINE BOT APIの初期化
+LINE_BOT_API = LineBotApi(CHANNEL_ACCESS_TOKEN)
+handler = WebhookHandler(CHANNEL_SECRET)
+
+TEAM_NAME_MAP = {
+    "アーセナル": "Arsenal",
+    "マンチェスターシティ": "Manchester City",
+    "マンシティ": "Manchester City",
+    "マンチェスターユナイテッド": "Manchester United",
+    "マンU": "Manchester United",
+    "リバプール": "Liverpool",
+    "チェルシー": "Chelsea",
+    "トッテナム": "Tottenham",
+    "レアル": "Real Madrid",
+    "レアルマドリード": "Real Madrid",
+    "バルセロナ": "Barcelona",
+    "バルサ": "Barcelona",
+    "アトレティコ": "Atletico Madrid",
+    "バイエルン": "Bayern Munich",
+    "ドルトムント": "Dortmund",
+    "psg": "PSG",
+    "パリサンジェルマン": "PSG",
+    "インテル": "Inter",
+    "ミラン": "AC Milan",
+    "ユベントス": "Juventus",
+    "ガンバ大阪": "Gamba Osaka",
+    "ヴィッセル神戸": "Vissel Kobe",
+    "浦和レッズ": "Urawa Red Diamonds",
+}
+
+def get_team_id(team_name: str) -> int | None:
+    
+    url = "https://v3.football.api-sports.io/teams"
+    headers = {'x-apisports-key': SOCCER_API_KEY}
+    params = {'name': team_name}
+    
+    try:
+        response = requests.get(url, headers=headers, params=params)
+        response.raise_for_status()
+        data = response.json()
+        
+        if data['results'] > 0:
+            team_id = data['response'][0]['team']['id']
+            found_name =data['response'][0]['team']['name']
+            print(f"チームが見つかりました: '{found_name}' (ID: {team_id})")
+            return team_id
+        return None
+    except requests.exceptions.RequestException as e:
+        print(f"チームID検索中にエラー: {e}")
+        return None
+    except requests.exceptions.RequestException as e:
+        print(f"チームID検索中にエラー: {e}")
+        return None
+    
+def get_fixtures_by_team(team_id: int, season: int) -> str:
+    """
+    指定されたチームIDとシーズンの試合結果を取得して、整形された文字列を返す
+    """
     url = "https://v3.football.api-sports.io/fixtures"
-    headers = {'x-apisports-key': API_KEY}
-    params = {'league': league_id, 'season': season, 'team': team_id}
-    messages = []
-
+    headers = {'x-apisports-key': SOCCER_API_KEY}
+    # リーグIDを削除し、チームIDとシーズンだけで検索（全コンペティションが対象になる）
+    params = {'season': season, 'team': team_id}
+    
     try:
         r = requests.get(url, headers=headers, params=params)
         r.raise_for_status()
         data = r.json()
 
-        if data['results'] > 0:
-            fixtures = data['response']
-            sorted_fixtures = sorted(fixtures, key=lambda x: x['fixture']['date'])
-
-            for fixture in sorted_fixtures:
-                fixture_date_utc = datetime.fromisoformat(fixture['fixture']['date'].replace("Z", "+00:00"))
-                fixture_date_jst = fixture_date_utc.strftime('%Y-%m-%d %H:%M')
-
-                home_team = fixture['teams']['home']['name']
-                away_team = fixture['teams']['away']['name']
+        if data['results'] == 0:
+            return "このチームの試合データは見つかりませんでした。"
+        
+        fixtures = data['response']
+        sorted_fixtures = sorted(fixtures, key=lambda x: x['fixture']['date'])
+        
+        # 返信用のメッセージリスト
+        messages = []
+        for fixture in sorted_fixtures:
+            fixture_date_utc = datetime.fromisoformat(fixture['fixture']['date'].replace("Z", "+00:00"))
+            fixture_date_jst = fixture_date_utc.strftime('%Y-%m-%d %H:%M')
+            home_team = fixture['teams']['home']['name']
+            away_team = fixture['teams']['away']['name']
+            
+            if fixture['fixture']['status']['long'] == "Match Finished":
                 home_goals = fixture['goals']['home']
                 away_goals = fixture['goals']['away']
-                status = fixture['fixture']['status']['long']
-
-                if status == "Match Finished":
-                    result = f"{fixture_date_jst} JST\n{home_team} {home_goals} - {away_goals} {away_team}"
-                else:
-                    result = f"{fixture_date_jst} JST\n{home_team} vs {away_team}（{status}）"
-
-                messages.append(result)
-
-        else:
-            messages.append("指定されたシーズンの試合データが見つかりませんでした。")
-            if data.get('errors'):
-                messages.append(f"APIエラー: {data['errors']}")
-
-    except requests.exceptions.RequestException as e:
-        messages.append(f"リクエストエラー: {e}")
-    except json.JSONDecodeError:
-        messages.append("APIからのレスポンスがJSON形式ではありませんでした。")
-    except KeyError:
-        messages.append("APIからのレスポンスの形式が予期したものと異なります。")
-
-    return "\n\n".join(messages[:5])  # 直近5試合だけ返す（多すぎ防止）
-
+                result = f"{fixture_date_jst}\n{home_team} {home_goals} - {away_goals} {away_team}"
+            else:
+                result = f"{fixture_date_jst}\n{home_team} vs {away_team}"
+            
+            messages.append(result)
         
-fetch_and_display_fixtures(team_id=42, league_id=39, season=2022)
+        # メッセージが長くなりすぎないように最新5件などに制限する
+        if len(messages) > 10:
+             return "【最近の試合結果】\n\n" + "\n\n".join(messages[-10:]) # 直近10件
+        else:
+             return "【試合結果】\n\n" + "\n\n".join(messages)
 
+    except requests.exceptions.HTTPError as e:
+        return f"APIエラーが発生しました (HTTP {e.response.status_code})。キーが有効か確認してください。"
+    except Exception as e:
+        return f"試合結果の取得中にエラーが発生しました: {e}"    
+    
 
 @app.get("/")
 def read_root():
@@ -100,28 +152,26 @@ async def callback(
 
 @handler.add(MessageEvent)
 def handle_message(event):
-    if not isinstance(event.message, TextMessage):
-        return
-
-    message_text = event.message.text.lower()
-
-    if message_text == "おはよう":
-        reply = TextSendMessage(text="おはよう")
-    elif message_text == "画像":
-        image_url = "https://blogger.googleusercontent.com/img/sports_referee_var_pose.png"
-        reply = ImageSendMessage(
-            original_content_url=image_url,
-            preview_image_url=image_url
-        )
-    elif message_text in ["試合", "試合結果", "fixture", "results"]:
-        fixture_text = fetch_and_display_fixtures(team_id=TEAM_ID, league_id=LEAGUE_ID, season=SEASON)
-        reply = TextSendMessage(text=fixture_text)
+    user_text = event.message.text.strip()
+    
+    # ユーザー入力を小文字に変換して、辞書に存在するかチェック
+    search_name_lower = user_text.lower()
+    
+    # 英語名に変換
+    team_name_en = TEAM_NAME_MAP.get(search_name_lower, user_text) # 辞書になければ元のテキストを使用
+    
+    # チームIDを検索
+    team_id = get_team_id(team_name_en)
+    
+    if team_id:
+        # 2024年6月現在は、2023-24シーズンが直近なので2023を指定
+        # 必要に応じて、現在の年を取得するように変更可能
+        season = 2024
+        reply_text = get_fixtures_by_team(team_id=team_id, season=season)
     else:
-        reply = TextSendMessage(text="「おはよう」「画像」「試合」などを送ってみてください。")
+        reply_text = f"「{user_text}」というチームは見つかりませんでした。\n英語名（例: Arsenal）や、よく使われる通称でお試しください。"
 
     try:
-        LINE_BOT_API.reply_message(event.reply_token, reply)
+        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=reply_text))
     except Exception as e:
-        print(f"Error sending message: {e}")
-
-
+        print(f"メッセージの返信中にエラー: {e}")
