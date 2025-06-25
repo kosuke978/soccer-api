@@ -164,7 +164,7 @@ def handle_message(event):
     if team_id:
         # 2024年6月現在は、2023-24シーズンが直近なので2023を指定
         # 必要に応じて、現在の年を取得するように変更可能
-        season = 2024
+        season = 2022
         reply_text = get_fixtures_by_team(team_id=team_id, season=season)
     else:
         reply_text = f"「{user_text}」というチームは見つかりませんでした。\n英語名（例: Arsenal）や、よく使われる通称でお試しください。"
