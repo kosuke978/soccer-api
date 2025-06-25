@@ -22,7 +22,7 @@ CHANNEL_ACCESS_TOKEN = os.environ.get("CHANNEL_ACCESS_TOKEN")
 CHANNEL_SECRET = os.environ.get("CHANNEL_SECRET")
 SOCCER_API_KEY = os.environ.get("SOCCER_API_KEY")
 
-if not all([CHANNEL_ACCESS_TOKEN,CHANNEL_SECRET,SOCCER_API_KEY])
+if not all([CHANNEL_ACCESS_TOKEN,CHANNEL_SECRET,SOCCER_API_KEY]):
     print("エラー：必要な環境変数が設定されていません。")
     exit()
 
