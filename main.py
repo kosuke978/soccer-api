@@ -4,7 +4,6 @@ from linebot.models import (
     MessageEvent,
     TextMessage,
     TextSendMessage,
-    ImageSendMessage,
 )
 from fastapi import FastAPI, Request, BackgroundTasks, Header
 from starlette.exceptions import HTTPException
@@ -14,23 +13,26 @@ import requests
 import json
 from datetime import datetime
 
+# .envファイルから環境変数を読み込む
 load_dotenv()
 
-app = FastAPI() 
+app = FastAPI()
 
+# --- 環境変数の設定 ---
+# .get()を使い、変数がなくてもクラッシュしないようにする
 CHANNEL_ACCESS_TOKEN = os.environ.get("CHANNEL_ACCESS_TOKEN")
 CHANNEL_SECRET = os.environ.get("CHANNEL_SECRET")
 SOCCER_API_KEY = os.environ.get("SOCCER_API_KEY")
 
-if not all([CHANNEL_ACCESS_TOKEN,CHANNEL_SECRET,SOCCER_API_KEY]):
-    print("エラー：必要な環境変数が設定されていません。")
+if not all([CHANNEL_ACCESS_TOKEN, CHANNEL_SECRET, SOCCER_API_KEY]):
+    print("エラー: 必要な環境変数が設定されていません。")
     exit()
 
-
-# LINE BOT APIの初期化
+# --- LINE Bot APIの初期化 ---
 LINE_BOT_API = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
 
+# --- ★★★ 追加点1: 日本語・通称と英語名の対応表 ★★★ ---
 TEAM_NAME_MAP = {
     "アーセナル": "Arsenal",
     "マンチェスターシティ": "Manchester City",
@@ -58,7 +60,10 @@ TEAM_NAME_MAP = {
 }
 
 def get_team_id(team_name: str) -> int | None:
-    
+    """
+    ★★★ 追加点2: チーム名からチームIDを検索する関数 ★★★
+    API-Footballの/teamsエンドポイントを使用してチームIDを取得する
+    """
     url = "https://v3.football.api-sports.io/teams"
     headers = {'x-apisports-key': SOCCER_API_KEY}
     params = {'name': team_name}
@@ -68,19 +73,18 @@ def get_team_id(team_name: str) -> int | None:
         response.raise_for_status()
         data = response.json()
         
+        # 検索結果があり、チーム名が完全一致または部分一致する場合
         if data['results'] > 0:
+            # 複数の候補から最も一致しそうなものを探す（ここでは単純に最初の候補を使用）
             team_id = data['response'][0]['team']['id']
-            found_name =data['response'][0]['team']['name']
+            found_name = data['response'][0]['team']['name']
             print(f"チームが見つかりました: '{found_name}' (ID: {team_id})")
             return team_id
         return None
     except requests.exceptions.RequestException as e:
         print(f"チームID検索中にエラー: {e}")
         return None
-    except requests.exceptions.RequestException as e:
-        print(f"チームID検索中にエラー: {e}")
-        return None
-    
+
 def get_fixtures_by_team(team_id: int, season: int) -> str:
     """
     指定されたチームIDとシーズンの試合結果を取得して、整形された文字列を返す
@@ -127,30 +131,24 @@ def get_fixtures_by_team(team_id: int, season: int) -> str:
     except requests.exceptions.HTTPError as e:
         return f"APIエラーが発生しました (HTTP {e.response.status_code})。キーが有効か確認してください。"
     except Exception as e:
-        return f"試合結果の取得中にエラーが発生しました: {e}"    
-    
+        return f"試合結果の取得中にエラーが発生しました: {e}"
 
 @app.get("/")
 def read_root():
-    return {"message": "LINE Bot is running"}
+    return {"message": "Soccer Results Bot is running"}
 
 @app.post("/callback")
-async def callback(
-    request: Request,
-    background_tasks: BackgroundTasks,
-    x_line_signature: str = Header(None),
-):
+async def callback(request: Request, background_tasks: BackgroundTasks, x_line_signature: str = Header(None)):
     body = await request.body()
     try:
-        background_tasks.add_task(
-            handler.handle, body.decode("utf-8"), x_line_signature
-        )
+        background_tasks.add_task(handler.handle, body.decode("utf-8"), x_line_signature)
     except InvalidSignatureError:
         raise HTTPException(status_code=400, detail="Invalid signature")
-
     return {"status": "ok"}
 
-@handler.add(MessageEvent)
+
+# --- ★★★ 修正点3: メッセージ処理のロジックを大幅に変更 ★★★ ---
+@handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     user_text = event.message.text.strip()
     
