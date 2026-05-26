@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
+    <title>{{ team.name }} | Team</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', path='css/styles.css') }}"
+    />
+  </head>
+  <body>
+    <header class="hero hero-sub">
+      <div class="container">
+        <a class="back-link" href="/">← トップへ戻る</a>
+        <div class="team-hero">
+          <div class="team-flag">{{ team.flag }}</div>
+          <div>
+            <p class="eyebrow">Team</p>
+            <h1>{{ team.name }}</h1>
+            <p class="subtitle">
+              {{ team.group }}{% if team.confederation %} / {{ team.confederation }}{% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="panel">
+        <div class="panel-header">
+          <h2>チーム情報</h2>
+          <span class="badge">プロフィール</span>
+        </div>
+        <div class="panel-body">
+          <div class="overview-grid">
+            <div>
+              <p class="label">所属グループ</p>
+              <p class="value">{{ team.group }}</p>
+            </div>
+            <div>
+              <p class="label">FIFAランキング</p>
+              <p class="value">
+                {% if team.fifa_rank is not none %}
+                  {{ team.fifa_rank }}
+                {% else %}
+                  未登録
+                {% endif %}
+              </p>
+            </div>
+            <div>
+              <p class="label">連盟</p>
+              <p class="value">{{ team.confederation or "未登録" }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>試合一覧</h2>
+          <span class="badge">Matches</span>
+        </div>
+        <div class="match-list">
+          {% if matches %}
+            {% for match in matches %}
+              <a class="match-card" href="/matches/{{ match.id }}">
+                <div class="match-meta">
+                  <span>
+                    {{ match.stage }}{% if match.group %} / Group {{ match.group }}{% endif %}
+                  </span>
+                  <span>{{ match.date }}</span>
+                </div>
+                <div class="match-teams">
+                  {{ match.home.name }}
+                  {{ match.home_goals if match.home_goals is not none else "" }}
+                  -
+                  {{ match.away_goals if match.away_goals is not none else "" }}
+                  {{ match.away.name }}
+                </div>
+                <div class="match-meta">
+                  <span>{{ match.venue or "TBD" }}</span>
+                  <span>{{ match.status }}</span>
+                </div>
+              </a>
+            {% endfor %}
+          {% else %}
+            <p class="muted">試合情報はまだ登録されていません。</p>
+          {% endif %}
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

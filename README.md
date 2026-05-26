@@ -1,35 +1,51 @@
-﻿# Soccer Results Bot
+# World Cup 2026 Hub
 
-LINE Bot と FastAPI で動くサッカー試合結果 Bot です。
-外部の API-Football への依存はなくし、`soccer_data.json` に保存したローカルデータを自前 API と Bot 返信の両方で利用します。
+FastAPI で動く World Cup 2026 向けの Web ページと API です。LINE Bot は廃止し、ローカル JSON データのみで大会情報・グループ・試合日程を提供します。
+
+## データ
+
+`data/world_cup_2026/` に以下の JSON を配置しています。
+
+- `tournament.json`
+- `teams.json` (48 teams)
+- `groups.json` (A-L)
+- `matches.json` (104 matches)
+
+ノックアウトは `home_slot` / `away_slot` を使ってプレースホルダーで表現しています。
 
 ## 必要な環境変数
 
-`.env` に以下を設定してください。
+`.env` に以下を設定できます（任意）。
 
 ```env
-CHANNEL_ACCESS_TOKEN=...
-CHANNEL_SECRET=...
-SOCCER_SEASON=2024
+WORLD_CUP_DATA_DIR=./data/world_cup_2026
+WORLD_CUP_YEAR=2026
+DISPLAY_TZ_OFFSET=9
 ```
-
-`SOCCER_SEASON` は省略可能で、未設定の場合は `2024` を使います。
-`SOCCER_API_KEY` は不要です。
 
 ## 起動
 
 ```powershell
-.\.venv\Scripts\uvicorn.exe main:app --reload
+pip install -r requirement.txt
+uvicorn app.main:app --reload
 ```
 
-## 自前 API
+または
+
+```powershell
+python main.py
+```
+
+## Web UI
+
+`http://localhost:8000/` を開くと大会概要とグループ、注目試合が確認できます。
+
+- `/teams/{team_id}`: チーム詳細
+- `/matches/{match_id}`: 試合詳細
+
+## API
 
 - `GET /api/teams`
-- `GET /api/teams?query=Arsenal`
-- `GET /api/teams/{team_id}`
-- `GET /api/teams/{team_id}/fixtures?season=2024`
-
-## データ更新
-
-チームや試合を追加する場合は `soccer_data.json` を編集します。
-LINE Bot の検索では、`teams[].name` と `teams[].aliases` が使われます。
+- `GET /api/groups`
+- `GET /api/matches`
+- `GET /api/matches/{match_id}`

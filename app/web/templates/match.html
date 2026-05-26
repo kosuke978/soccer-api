@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
+    <title>Match {{ match.id }} | World Cup 2026</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', path='css/styles.css') }}"
+    />
+  </head>
+  <body>
+    <header class="hero hero-sub">
+      <div class="container">
+        <a class="back-link" href="/">← トップへ戻る</a>
+        <p class="eyebrow">Match</p>
+        <h1 class="match-title">
+          {{ match.home.name }} vs {{ match.away.name }}
+        </h1>
+        <p class="subtitle">
+          {{ match.stage }}{% if match.group %} / Group {{ match.group }}{% endif %}
+        </p>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="panel">
+        <div class="panel-header">
+          <h2>試合情報</h2>
+          <span class="badge">Detail</span>
+        </div>
+        <div class="panel-body">
+          <div class="overview-grid">
+            <div>
+              <p class="label">対戦カード</p>
+              <p class="value">
+                {{ match.home.name }}
+                {% if match.home.id %}
+                  <a href="/teams/{{ match.home.id }}" class="link-pill">チーム</a>
+                {% endif %}
+                vs
+                {{ match.away.name }}
+                {% if match.away.id %}
+                  <a href="/teams/{{ match.away.id }}" class="link-pill">チーム</a>
+                {% endif %}
+              </p>
+            </div>
+            <div>
+              <p class="label">日時</p>
+              <p class="value">{{ match.date }}</p>
+            </div>
+            <div>
+              <p class="label">会場</p>
+              <p class="value">{{ match.venue or "TBD" }}</p>
+            </div>
+            <div>
+              <p class="label">ステータス</p>
+              <p class="value">{{ match.status }}</p>
+            </div>
+          </div>
+          <div class="scoreline">
+            <span>{{ match.home.name }}</span>
+            <strong>
+              {{ match.home_goals if match.home_goals is not none else "-" }}
+              :
+              {{ match.away_goals if match.away_goals is not none else "-" }}
+            </strong>
+            <span>{{ match.away.name }}</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

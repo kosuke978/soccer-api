@@ -1,0 +1,9 @@
+{
+  "name": "FIFA World Cup",
+  "year": 2026,
+  "host_countries": ["United States", "Canada", "Mexico"],
+  "start_date": "2026-06-11",
+  "end_date": "2026-07-19",
+  "timezone": "UTC",
+  "description": "48 teams, group stage to final in North America."
+}
