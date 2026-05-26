@@ -23,6 +23,7 @@
         <p class="subtitle">
           {{ match.stage }}{% if match.group %} / Group {{ match.group }}{% endif %}
         </p>
+        <p class="source-line">{{ match.certainty }} data</p>
       </div>
     </header>
 
@@ -50,7 +51,7 @@
             </div>
             <div>
               <p class="label">日時</p>
-              <p class="value">{{ match.date }}</p>
+              <p class="value">{{ match.date or "日時確認中" }}</p>
             </div>
             <div>
               <p class="label">会場</p>

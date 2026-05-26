@@ -1,36 +1,48 @@
 # World Cup 2026 Hub
 
-FastAPI で動く World Cup 2026 向けの Web ページと API です。LINE Bot は廃止し、ローカル JSON データのみで大会情報・グループ・試合日程を提供します。
+FastAPI and Jinja2 application for a trusted World Cup 2026 data hub.
 
-## データ
+The project separates raw official data from derived or experimental layers so
+the UI and API do not present guesses as confirmed tournament facts.
 
-`data/world_cup_2026/` に以下の JSON を配置しています。
+## Data Model
 
-- `tournament.json`
-- `teams.json` (48 teams)
-- `groups.json` (A-L)
-- `matches.json` (104 matches)
+`data/world_cup_2026/` contains:
 
-ノックアウトは `home_slot` / `away_slot` を使ってプレースホルダーで表現しています。
+- `tournament.json`: official tournament metadata and format.
+- `teams.json`: 48 official group-stage teams.
+- `groups.json`: official Group A-L membership.
+- `matches.json`: 104-match catalog. Group/team membership is derived from
+  official groups; unverified kickoff and venue fields remain `null`.
+- `storylines.json`: derived editorial context for richer app experiences.
 
-## 必要な環境変数
+Each trusted record carries:
 
-`.env` に以下を設定できます（任意）。
+- `data_tier`: `official`, `derived`, or `experimental`
+- `certainty`: `official`, `derived`, or `experimental`
+- `source`
+- `source_url`
+- `last_verified_at`
+
+## Configuration
+
+Optional `.env` values:
 
 ```env
 WORLD_CUP_DATA_DIR=./data/world_cup_2026
 WORLD_CUP_YEAR=2026
 DISPLAY_TZ_OFFSET=9
+APP_TITLE=World Cup 2026 Hub
 ```
 
-## 起動
+## Run
 
 ```powershell
 pip install -r requirement.txt
 uvicorn app.main:app --reload
 ```
 
-または
+or:
 
 ```powershell
 python main.py
@@ -38,14 +50,23 @@ python main.py
 
 ## Web UI
 
-`http://localhost:8000/` を開くと大会概要とグループ、注目試合が確認できます。
-
-- `/teams/{team_id}`: チーム詳細
-- `/matches/{match_id}`: 試合詳細
+- `/`: tournament overview, official groups, and derived match catalog
+- `/teams/{team_id}`: team detail
+- `/matches/{match_id}`: match detail
 
 ## API
 
+- `GET /api/tournament/overview`
 - `GET /api/teams`
 - `GET /api/groups`
 - `GET /api/matches`
 - `GET /api/matches/{match_id}`
+- `GET /api/storylines`
+- `GET /api/predictions`
+- `GET /api/analytics/group-strength`
+
+## Test
+
+```powershell
+python -m pytest
+```

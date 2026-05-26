@@ -23,6 +23,9 @@
           {{ tournament.host_countries | join(', ') }} /
           {{ tournament.start_date }} - {{ tournament.end_date }}
         </p>
+        <p class="source-line">
+          {{ tournament.certainty }} / verified {{ tournament.last_verified_at }}
+        </p>
         <nav class="nav">
           <a href="#overview">大会概要</a>
           <a href="#featured">注目試合</a>
@@ -54,7 +57,13 @@
             </div>
             <div>
               <p class="label">参加国</p>
-              <p id="team-count" class="value">48 teams</p>
+              <p id="team-count" class="value">
+                {{ tournament.format.teams }} teams
+              </p>
+            </div>
+            <div>
+              <p class="label">試合数</p>
+              <p class="value">{{ tournament.format.total_matches }} matches</p>
             </div>
           </div>
           <p class="description">
@@ -76,7 +85,7 @@
                   <span>
                     {{ match.stage }}{% if match.group %} / Group {{ match.group }}{% endif %}
                   </span>
-                  <span>{{ match.date }}</span>
+                  <span>{{ match.date or "日時確認中" }}</span>
                 </div>
                 <div class="match-teams">
                   {{ match.home.name }}
@@ -87,7 +96,7 @@
                 </div>
                 <div class="match-meta">
                   <span>{{ match.venue or "TBD" }}</span>
-                  <span>{{ match.status }}</span>
+                  <span>{{ match.certainty or match.status }}</span>
                 </div>
               </a>
             {% endfor %}
@@ -105,7 +114,10 @@
         <div class="groups-grid">
           {% for group in groups %}
             <div class="group-card">
-              <div class="group-title">{{ group.name }}</div>
+              <div class="group-title">
+                {{ group.name }}
+                <span class="mini-badge">{{ group.certainty }}</span>
+              </div>
               {% for team in group.teams %}
                 <div class="group-team">
                   <a href="/teams/{{ team.id }}">{{ team.name }}</a>
@@ -118,18 +130,18 @@
 
       <section class="panel" id="upcoming">
         <div class="panel-header">
-          <h2>今後の試合</h2>
-          <span class="badge">Upcoming</span>
+          <h2>試合カタログ</h2>
+          <span class="badge">Derived</span>
         </div>
         <div class="match-list">
-          {% if upcoming_matches %}
-            {% for match in upcoming_matches %}
+          {% if upcoming_matches or undated_matches %}
+            {% for match in upcoming_matches + undated_matches %}
               <a class="match-card" href="/matches/{{ match.id }}">
                 <div class="match-meta">
                   <span>
                     {{ match.stage }}{% if match.group %} / Group {{ match.group }}{% endif %}
                   </span>
-                  <span>{{ match.date }}</span>
+                  <span>{{ match.date or "日時確認中" }}</span>
                 </div>
                 <div class="match-teams">
                   {{ match.home.name }}
@@ -140,7 +152,7 @@
                 </div>
                 <div class="match-meta">
                   <span>{{ match.venue or "TBD" }}</span>
-                  <span>{{ match.status }}</span>
+                  <span>{{ match.certainty or match.status }}</span>
                 </div>
               </a>
             {% endfor %}

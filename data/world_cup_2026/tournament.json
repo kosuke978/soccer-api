@@ -1,9 +1,27 @@
 {
   "name": "FIFA World Cup",
   "year": 2026,
-  "host_countries": ["United States", "Canada", "Mexico"],
+  "host_countries": [
+    "United States",
+    "Canada",
+    "Mexico"
+  ],
   "start_date": "2026-06-11",
   "end_date": "2026-07-19",
   "timezone": "UTC",
-  "description": "48 teams, group stage to final in North America."
+  "format": {
+    "teams": 48,
+    "groups": 12,
+    "teams_per_group": 4,
+    "total_matches": 104,
+    "group_stage_matches": 72,
+    "knockout_matches": 32,
+    "advance_rule": "Top two teams from each group plus the eight best third-placed teams advance to the Round of 32."
+  },
+  "description": "Official World Cup 2026 group field with derived match and intelligence layers kept separate from official source data.",
+  "data_tier": "official",
+  "source": "FIFA World Cup 2026 official tournament information",
+  "source_url": "https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers",
+  "last_verified_at": "2026-05-27",
+  "certainty": "official"
 }

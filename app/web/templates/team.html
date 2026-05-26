@@ -24,6 +24,7 @@
             <p class="subtitle">
               {{ team.group }}{% if team.confederation %} / {{ team.confederation }}{% endif %}
             </p>
+            <p class="source-line">{{ team.certainty }} data</p>
           </div>
         </div>
       </div>
@@ -72,7 +73,7 @@
                   <span>
                     {{ match.stage }}{% if match.group %} / Group {{ match.group }}{% endif %}
                   </span>
-                  <span>{{ match.date }}</span>
+                  <span>{{ match.date or "日時確認中" }}</span>
                 </div>
                 <div class="match-teams">
                   {{ match.home.name }}
@@ -83,7 +84,7 @@
                 </div>
                 <div class="match-meta">
                   <span>{{ match.venue or "TBD" }}</span>
-                  <span>{{ match.status }}</span>
+                  <span>{{ match.certainty or match.status }}</span>
                 </div>
               </a>
             {% endfor %}

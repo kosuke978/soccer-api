@@ -1,0 +1,60 @@
+[
+  {
+    "id": "hosts-path",
+    "title": "Three hosts, three opening pressure points",
+    "summary": "Mexico, Canada, and the United States each carry a different kind of home pressure through the group stage.",
+    "related_groups": [
+      "A",
+      "B",
+      "D"
+    ],
+    "related_team_codes": [
+      "MEX",
+      "CAN",
+      "USA"
+    ],
+    "data_tier": "derived",
+    "source": "Editorial layer built from official host and group data.",
+    "source_url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/final-draw-results",
+    "last_verified_at": "2026-05-27",
+    "certainty": "derived"
+  },
+  {
+    "id": "japan-group-f-test",
+    "title": "Japan lands in a sharp Group F test",
+    "summary": "Japan shares Group F with Netherlands, Tunisia, and Sweden, creating a compact group with contrasting styles.",
+    "related_groups": [
+      "F"
+    ],
+    "related_team_codes": [
+      "JPN",
+      "NED",
+      "TUN",
+      "SWE"
+    ],
+    "data_tier": "derived",
+    "source": "Editorial layer built from official group data.",
+    "source_url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/final-draw-results",
+    "last_verified_at": "2026-05-27",
+    "certainty": "derived"
+  },
+  {
+    "id": "group-h-continental-mix",
+    "title": "Group H blends four football cultures",
+    "summary": "Spain, Cabo Verde, Saudi Arabia, and Uruguay give Group H a broad tactical and cultural spread.",
+    "related_groups": [
+      "H"
+    ],
+    "related_team_codes": [
+      "ESP",
+      "CPV",
+      "KSA",
+      "URU"
+    ],
+    "data_tier": "derived",
+    "source": "Editorial layer built from official group data.",
+    "source_url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/final-draw-results",
+    "last_verified_at": "2026-05-27",
+    "certainty": "derived"
+  }
+]

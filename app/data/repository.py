@@ -14,6 +14,7 @@ class WorldCupRepository:
         self._teams = load_json(data_dir, "teams.json")
         self._groups = load_json(data_dir, "groups.json")
         self._matches = load_json(data_dir, "matches.json")
+        self._storylines = load_json(data_dir, "storylines.json")
         self._teams_by_id = {int(team["id"]): team for team in self._teams}
         self._groups_by_id = {
             group["id"].upper(): group for group in self._groups
@@ -24,6 +25,27 @@ class WorldCupRepository:
 
     def get_tournament(self) -> dict[str, Any]:
         return self._tournament
+
+    def get_tournament_overview(self) -> dict[str, Any]:
+        official_groups = [
+            group for group in self._groups if group.get("data_tier") == "official"
+        ]
+        official_teams = [
+            team for team in self._teams if team.get("data_tier") == "official"
+        ]
+        return {
+            **self._tournament,
+            "counts": {
+                "teams": len(self._teams),
+                "official_teams": len(official_teams),
+                "groups": len(self._groups),
+                "official_groups": len(official_groups),
+                "matches": len(self._matches),
+                "group_stage_matches": len(
+                    [match for match in self._matches if match.get("stage") == "Group"]
+                ),
+            },
+        }
 
     def list_teams(
         self,
@@ -54,6 +76,35 @@ class WorldCupRepository:
     def list_groups(self) -> list[dict[str, Any]]:
         return self._groups
 
+    def list_storylines(self) -> list[dict[str, Any]]:
+        return self._storylines
+
+    def list_group_strength(self) -> list[dict[str, Any]]:
+        strengths = []
+        for group in self._groups:
+            teams = [
+                self.get_team(int(team_id))
+                for team_id in group["teams"]
+            ]
+            teams = [team for team in teams if team]
+            confederations = sorted(
+                {team.get("confederation", "unknown") for team in teams}
+            )
+            strengths.append(
+                {
+                    "group": group["id"],
+                    "teams": [team["name"] for team in teams],
+                    "confederations": confederations,
+                    "confederation_count": len(confederations),
+                    "data_tier": "derived",
+                    "certainty": "derived",
+                    "source": "Derived from official group membership.",
+                    "source_url": group.get("source_url"),
+                    "last_verified_at": group.get("last_verified_at"),
+                }
+            )
+        return strengths
+
     def get_group(self, group_id: str) -> dict[str, Any] | None:
         return self._groups_by_id.get(group_id.upper())
 
@@ -70,6 +121,7 @@ class WorldCupRepository:
         group: str | None = None,
         stage: str | None = None,
         status: str | None = None,
+        city: str | None = None,
         from_date: str | None = None,
         to_date: str | None = None,
     ) -> list[dict[str, Any]]:
@@ -101,12 +153,21 @@ class WorldCupRepository:
                 for match in matches
                 if match.get("status", "").casefold() == normalized_status
             ]
+        if city:
+            normalized_city = normalize_text(city)
+            matches = [
+                match
+                for match in matches
+                if normalized_city in normalize_text(match.get("city") or "")
+            ]
 
         if from_date or to_date:
             from_dt = parse_iso_datetime(from_date) if from_date else None
             to_dt = parse_iso_datetime(to_date) if to_date else None
 
             def within_range(match: dict[str, Any]) -> bool:
+                if not match.get("date"):
+                    return False
                 match_dt = parse_iso_datetime(match["date"])
                 if from_dt and match_dt < from_dt:
                     return False
@@ -116,7 +177,13 @@ class WorldCupRepository:
 
             matches = [match for match in matches if within_range(match)]
 
-        return sorted(matches, key=lambda match: parse_iso_datetime(match["date"]))
+        return sorted(
+            matches,
+            key=lambda match: (
+                match.get("date") is None,
+                parse_iso_datetime(match["date"]) if match.get("date") else match["id"],
+            ),
+        )
 
     def get_match(self, match_id: int) -> dict[str, Any] | None:
         return self._matches_by_id.get(match_id)

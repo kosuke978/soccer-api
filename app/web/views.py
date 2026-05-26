@@ -29,11 +29,14 @@ def build_match_view(match: dict[str, Any]) -> dict[str, Any]:
         "date": format_datetime(match.get("date"), DISPLAY_TIMEZONE),
         "raw_date": match.get("date"),
         "venue": match.get("venue"),
+        "city": match.get("city"),
         "status": match.get("status") or "scheduled",
         "home_goals": match.get("home_goals"),
         "away_goals": match.get("away_goals"),
         "home": home,
         "away": away,
+        "data_tier": match.get("data_tier"),
+        "certainty": match.get("certainty"),
     }
 
 
@@ -52,6 +55,8 @@ def index(request: Request) -> HTMLResponse:
                 "id": group["id"],
                 "name": group["name"],
                 "teams": teams,
+                "data_tier": group.get("data_tier"),
+                "certainty": group.get("certainty"),
             }
         )
 
@@ -60,19 +65,26 @@ def index(request: Request) -> HTMLResponse:
     upcoming = [
         match
         for match in matches
-        if parse_iso_datetime(match["date"]) >= now
+        if match.get("date") and parse_iso_datetime(match["date"]) >= now
     ]
     recent = [
         match
         for match in matches
         if match.get("status") == "finished"
+        and match.get("date")
         and parse_iso_datetime(match["date"]) < now
     ]
+    undated_matches = [
+        build_match_view(match)
+        for match in matches
+        if not match.get("date")
+    ][:8]
 
     featured_matches = [build_match_view(match) for match in upcoming[:3]]
     upcoming_matches = [build_match_view(match) for match in upcoming[:8]]
     recent_matches = [
-        build_match_view(match) for match in sorted(
+        build_match_view(match)
+        for match in sorted(
             recent,
             key=lambda item: parse_iso_datetime(item["date"]),
             reverse=True,
@@ -88,6 +100,7 @@ def index(request: Request) -> HTMLResponse:
             "featured_matches": featured_matches,
             "upcoming_matches": upcoming_matches,
             "recent_matches": recent_matches,
+            "undated_matches": undated_matches,
         },
     )
 
@@ -106,9 +119,11 @@ def team_detail(request: Request, team_id: int) -> HTMLResponse:
         "id": team["id"],
         "name": team["name"],
         "confederation": team.get("confederation"),
-        "flag": team.get("flag_emoji", "FLAG"),
+        "flag": team.get("code", "TEAM"),
         "fifa_rank": team.get("fifa_rank"),
-        "group": group["name"] if group else "未定",
+        "group": group["name"] if group else "TBD",
+        "data_tier": team.get("data_tier"),
+        "certainty": team.get("certainty"),
     }
 
     return templates.TemplateResponse(
