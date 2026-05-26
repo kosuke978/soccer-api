@@ -1,0 +1,182 @@
+{
+  "teams": [
+    {
+      "id": 1,
+      "name": "Arsenal",
+      "country": "England",
+      "aliases": ["arsenal", "\u30a2\u30fc\u30bb\u30ca\u30eb"]
+    },
+    {
+      "id": 2,
+      "name": "Manchester City",
+      "country": "England",
+      "aliases": ["man city", "mancity", "\u30de\u30f3\u30c1\u30a7\u30b9\u30bf\u30fc\u30b7\u30c6\u30a3", "\u30de\u30f3C"]
+    },
+    {
+      "id": 3,
+      "name": "Liverpool",
+      "country": "England",
+      "aliases": ["liverpool", "\u30ea\u30d0\u30d7\u30fc\u30eb"]
+    },
+    {
+      "id": 4,
+      "name": "Chelsea",
+      "country": "England",
+      "aliases": ["chelsea", "\u30c1\u30a7\u30eb\u30b7\u30fc"]
+    },
+    {
+      "id": 5,
+      "name": "Real Madrid",
+      "country": "Spain",
+      "aliases": ["real madrid", "\u30ec\u30a2\u30eb", "\u30ec\u30a2\u30eb\u30de\u30c9\u30ea\u30fc\u30c9"]
+    },
+    {
+      "id": 6,
+      "name": "Barcelona",
+      "country": "Spain",
+      "aliases": ["barca", "barcelona", "\u30d0\u30eb\u30bb\u30ed\u30ca", "\u30d0\u30eb\u30b5"]
+    },
+    {
+      "id": 7,
+      "name": "Bayern Munich",
+      "country": "Germany",
+      "aliases": ["bayern", "bayern munich", "\u30d0\u30a4\u30a8\u30eb\u30f3"]
+    },
+    {
+      "id": 8,
+      "name": "PSG",
+      "country": "France",
+      "aliases": ["psg", "paris saint-germain", "\u30d1\u30ea\u30b5\u30f3\u30b8\u30a7\u30eb\u30de\u30f3"]
+    },
+    {
+      "id": 9,
+      "name": "Gamba Osaka",
+      "country": "Japan",
+      "aliases": ["gamba osaka", "\u30ac\u30f3\u30d0\u5927\u962a", "\u30ac\u30f3\u30d0"]
+    },
+    {
+      "id": 10,
+      "name": "Vissel Kobe",
+      "country": "Japan",
+      "aliases": ["vissel kobe", "\u30f4\u30a3\u30c3\u30bb\u30eb\u795e\u6238", "\u795e\u6238"]
+    },
+    {
+      "id": 11,
+      "name": "Urawa Red Diamonds",
+      "country": "Japan",
+      "aliases": ["urawa reds", "urawa red diamonds", "\u6d66\u548c\u30ec\u30c3\u30ba", "\u6d66\u548c"]
+    }
+  ],
+  "fixtures": [
+    {
+      "id": 1001,
+      "season": 2024,
+      "date": "2024-08-17T14:00:00Z",
+      "home_team_id": 1,
+      "away_team_id": 3,
+      "status": "finished",
+      "home_goals": 2,
+      "away_goals": 1
+    },
+    {
+      "id": 1002,
+      "season": 2024,
+      "date": "2024-09-22T15:30:00Z",
+      "home_team_id": 2,
+      "away_team_id": 1,
+      "status": "finished",
+      "home_goals": 1,
+      "away_goals": 1
+    },
+    {
+      "id": 1003,
+      "season": 2024,
+      "date": "2024-10-20T16:30:00Z",
+      "home_team_id": 1,
+      "away_team_id": 4,
+      "status": "finished",
+      "home_goals": 3,
+      "away_goals": 0
+    },
+    {
+      "id": 1004,
+      "season": 2024,
+      "date": "2024-11-24T16:30:00Z",
+      "home_team_id": 3,
+      "away_team_id": 2,
+      "status": "finished",
+      "home_goals": 2,
+      "away_goals": 2
+    },
+    {
+      "id": 1005,
+      "season": 2024,
+      "date": "2024-12-08T20:00:00Z",
+      "home_team_id": 4,
+      "away_team_id": 1,
+      "status": "finished",
+      "home_goals": 1,
+      "away_goals": 2
+    },
+    {
+      "id": 2001,
+      "season": 2024,
+      "date": "2024-09-21T19:00:00Z",
+      "home_team_id": 5,
+      "away_team_id": 6,
+      "status": "finished",
+      "home_goals": 2,
+      "away_goals": 0
+    },
+    {
+      "id": 2002,
+      "season": 2024,
+      "date": "2025-01-12T20:00:00Z",
+      "home_team_id": 6,
+      "away_team_id": 5,
+      "status": "scheduled",
+      "home_goals": null,
+      "away_goals": null
+    },
+    {
+      "id": 3001,
+      "season": 2024,
+      "date": "2024-09-14T13:30:00Z",
+      "home_team_id": 7,
+      "away_team_id": 8,
+      "status": "finished",
+      "home_goals": 3,
+      "away_goals": 1
+    },
+    {
+      "id": 4001,
+      "season": 2024,
+      "date": "2024-06-16T10:00:00Z",
+      "home_team_id": 9,
+      "away_team_id": 10,
+      "status": "finished",
+      "home_goals": 1,
+      "away_goals": 0
+    },
+    {
+      "id": 4002,
+      "season": 2024,
+      "date": "2024-07-20T10:00:00Z",
+      "home_team_id": 11,
+      "away_team_id": 9,
+      "status": "finished",
+      "home_goals": 2,
+      "away_goals": 2
+    },
+    {
+      "id": 4003,
+      "season": 2024,
+      "date": "2024-08-11T10:00:00Z",
+      "home_team_id": 10,
+      "away_team_id": 11,
+      "status": "finished",
+      "home_goals": 1,
+      "away_goals": 3
+    }
+  ]
+}
