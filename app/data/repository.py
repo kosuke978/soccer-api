@@ -1,35 +1,26 @@
 from __future__ import annotations
 
-import json
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-
-def normalize_text(value: str) -> str:
-    return " ".join(value.casefold().strip().split())
-
-
-def parse_iso_datetime(value: str) -> datetime:
-    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+from app.core.utils import normalize_text, parse_iso_datetime, slot_label
+from app.data.loader import load_json
 
 
 class WorldCupRepository:
     def __init__(self, data_dir: Path) -> None:
         self.data_dir = data_dir
-        self._tournament = self._load_json("tournament.json")
-        self._teams = self._load_json("teams.json")
-        self._groups = self._load_json("groups.json")
-        self._matches = self._load_json("matches.json")
+        self._tournament = load_json(data_dir, "tournament.json")
+        self._teams = load_json(data_dir, "teams.json")
+        self._groups = load_json(data_dir, "groups.json")
+        self._matches = load_json(data_dir, "matches.json")
         self._teams_by_id = {int(team["id"]): team for team in self._teams}
-        self._groups_by_id = {group["id"]: group for group in self._groups}
-
-    def _load_json(self, filename: str) -> list[dict[str, Any]] | dict[str, Any]:
-        file_path = self.data_dir / filename
-        if not file_path.exists():
-            raise FileNotFoundError(f"Missing data file: {file_path}")
-        with file_path.open(encoding="utf-8") as file:
-            return json.load(file)
+        self._groups_by_id = {
+            group["id"].upper(): group for group in self._groups
+        }
+        self._matches_by_id = {
+            int(match["id"]): match for match in self._matches
+        }
 
     def get_tournament(self) -> dict[str, Any]:
         return self._tournament
@@ -65,6 +56,12 @@ class WorldCupRepository:
 
     def get_group(self, group_id: str) -> dict[str, Any] | None:
         return self._groups_by_id.get(group_id.upper())
+
+    def get_group_for_team(self, team_id: int) -> dict[str, Any] | None:
+        for group in self._groups:
+            if int(team_id) in {int(team) for team in group["teams"]}:
+                return group
+        return None
 
     def list_matches(
         self,
@@ -120,6 +117,20 @@ class WorldCupRepository:
             matches = [match for match in matches if within_range(match)]
 
         return sorted(matches, key=lambda match: parse_iso_datetime(match["date"]))
+
+    def get_match(self, match_id: int) -> dict[str, Any] | None:
+        return self._matches_by_id.get(match_id)
+
+    def resolve_team_reference(self, match: dict[str, Any], side: str) -> dict[str, Any]:
+        team_id = match.get(f"{side}_team_id")
+        if team_id is not None:
+            team = self.get_team(int(team_id))
+            if team:
+                return {"id": team["id"], "name": team["name"]}
+        slot = match.get(f"{side}_slot")
+        if slot:
+            return {"id": None, "name": slot_label(slot)}
+        return {"id": None, "name": "TBD"}
 
     def _team_matches(
         self,

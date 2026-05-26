@@ -11,10 +11,6 @@
       rel="stylesheet"
       href="{{ url_for('static', path='css/styles.css') }}"
     />
-    <script
-      src="{{ url_for('static', path='js/app.js') }}"
-      defer
-    ></script>
   </head>
   <body>
     <header class="hero">
@@ -27,11 +23,17 @@
           {{ tournament.host_countries | join(', ') }} /
           {{ tournament.start_date }} - {{ tournament.end_date }}
         </p>
+        <nav class="nav">
+          <a href="#overview">大会概要</a>
+          <a href="#featured">注目試合</a>
+          <a href="#groups">グループ</a>
+          <a href="#upcoming">試合一覧</a>
+        </nav>
       </div>
     </header>
 
     <main class="container">
-      <section class="panel">
+      <section class="panel" id="overview">
         <div class="panel-header">
           <h2>大会概要</h2>
           <span class="badge">公式戦フォーマット</span>
@@ -56,51 +58,130 @@
             </div>
           </div>
           <p class="description">
-            グループステージから決勝までの情報を一つのページで把握できる
-            World Cup Hub です。
+            {{ tournament.description or "グループステージから決勝までの情報を一つのページで把握できる World Cup Hub です。" }}
           </p>
         </div>
       </section>
 
-      <section class="panel">
+      <section class="panel" id="featured">
         <div class="panel-header">
-          <h2>チーム検索</h2>
-          <span class="badge">API連動</span>
+          <h2>注目試合</h2>
+          <span class="badge">Featured</span>
         </div>
-        <div class="panel-body">
-          <input
-            id="team-search"
-            class="search-input"
-            type="text"
-            placeholder="国名で検索（例: Japan, Brazil）"
-          />
-          <div id="team-results" class="results-grid"></div>
-          <div id="team-matches" class="match-list"></div>
+        <div class="match-list">
+          {% if featured_matches %}
+            {% for match in featured_matches %}
+              <a class="match-card" href="/matches/{{ match.id }}">
+                <div class="match-meta">
+                  <span>
+                    {{ match.stage }}{% if match.group %} / Group {{ match.group }}{% endif %}
+                  </span>
+                  <span>{{ match.date }}</span>
+                </div>
+                <div class="match-teams">
+                  {{ match.home.name }}
+                  {{ match.home_goals if match.home_goals is not none else "" }}
+                  -
+                  {{ match.away_goals if match.away_goals is not none else "" }}
+                  {{ match.away.name }}
+                </div>
+                <div class="match-meta">
+                  <span>{{ match.venue or "TBD" }}</span>
+                  <span>{{ match.status }}</span>
+                </div>
+              </a>
+            {% endfor %}
+          {% else %}
+            <p class="muted">注目試合は準備中です。</p>
+          {% endif %}
         </div>
       </section>
 
-      <section class="panel">
+      <section class="panel" id="groups">
         <div class="panel-header">
           <h2>グループ</h2>
           <span class="badge">A - L</span>
         </div>
-        <div id="groups-grid" class="groups-grid"></div>
+        <div class="groups-grid">
+          {% for group in groups %}
+            <div class="group-card">
+              <div class="group-title">{{ group.name }}</div>
+              {% for team in group.teams %}
+                <div class="group-team">
+                  <a href="/teams/{{ team.id }}">{{ team.name }}</a>
+                </div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        </div>
       </section>
 
-      <section class="panel">
+      <section class="panel" id="upcoming">
         <div class="panel-header">
           <h2>今後の試合</h2>
           <span class="badge">Upcoming</span>
         </div>
-        <div id="upcoming-list" class="match-list"></div>
+        <div class="match-list">
+          {% if upcoming_matches %}
+            {% for match in upcoming_matches %}
+              <a class="match-card" href="/matches/{{ match.id }}">
+                <div class="match-meta">
+                  <span>
+                    {{ match.stage }}{% if match.group %} / Group {{ match.group }}{% endif %}
+                  </span>
+                  <span>{{ match.date }}</span>
+                </div>
+                <div class="match-teams">
+                  {{ match.home.name }}
+                  {{ match.home_goals if match.home_goals is not none else "" }}
+                  -
+                  {{ match.away_goals if match.away_goals is not none else "" }}
+                  {{ match.away.name }}
+                </div>
+                <div class="match-meta">
+                  <span>{{ match.venue or "TBD" }}</span>
+                  <span>{{ match.status }}</span>
+                </div>
+              </a>
+            {% endfor %}
+          {% else %}
+            <p class="muted">今後の試合が登録されていません。</p>
+          {% endif %}
+        </div>
       </section>
 
-      <section class="panel">
+      <section class="panel" id="recent">
         <div class="panel-header">
           <h2>最近の結果</h2>
           <span class="badge">Results</span>
         </div>
-        <div id="recent-list" class="match-list"></div>
+        <div class="match-list">
+          {% if recent_matches %}
+            {% for match in recent_matches %}
+              <a class="match-card" href="/matches/{{ match.id }}">
+                <div class="match-meta">
+                  <span>
+                    {{ match.stage }}{% if match.group %} / Group {{ match.group }}{% endif %}
+                  </span>
+                  <span>{{ match.date }}</span>
+                </div>
+                <div class="match-teams">
+                  {{ match.home.name }}
+                  {{ match.home_goals if match.home_goals is not none else "" }}
+                  -
+                  {{ match.away_goals if match.away_goals is not none else "" }}
+                  {{ match.away.name }}
+                </div>
+                <div class="match-meta">
+                  <span>{{ match.venue or "TBD" }}</span>
+                  <span>{{ match.status }}</span>
+                </div>
+              </a>
+            {% endfor %}
+          {% else %}
+            <p class="muted">最近の結果はまだありません。</p>
+          {% endif %}
+        </div>
       </section>
     </main>
   </body>

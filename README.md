@@ -30,17 +30,22 @@ pip install -r requirement.txt
 uvicorn app.main:app --reload
 ```
 
+または
+
+```powershell
+python main.py
+```
+
 ## Web UI
 
-`http://localhost:8000/` を開くと、グループ・今後の試合・検索が確認できます。
+`http://localhost:8000/` を開くと大会概要とグループ、注目試合が確認できます。
+
+- `/teams/{team_id}`: チーム詳細
+- `/matches/{match_id}`: 試合詳細
 
 ## API
 
-- `GET /api/overview`
 - `GET /api/teams`
-- `GET /api/teams?query=Japan`
-- `GET /api/teams?group=A`
-- `GET /api/teams/{team_id}`
-- `GET /api/teams/{team_id}/matches`
 - `GET /api/groups`
-- `GET /api/matches?stage=Group&group=A`
+- `GET /api/matches`
+- `GET /api/matches/{match_id}`
