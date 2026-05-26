@@ -1,175 +1,212 @@
+from __future__ import annotations
+
+import json
+import os
+from datetime import datetime, timezone, timedelta
+from pathlib import Path
+from typing import Any
+
+from dotenv import load_dotenv
+from fastapi import BackgroundTasks, FastAPI, Header, Query, Request
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
-from linebot.models import (
-    MessageEvent,
-    TextMessage,
-    TextSendMessage,
-)
-from fastapi import FastAPI, Request, BackgroundTasks, Header
+from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from starlette.exceptions import HTTPException
-from dotenv import load_dotenv
-import os
-import requests
-import json
-from datetime import datetime
 
-# .envファイルから環境変数を読み込む
 load_dotenv()
 
-app = FastAPI()
+app = FastAPI(title="Soccer Results Bot")
 
-# --- 環境変数の設定 ---
-# .get()を使い、変数がなくてもクラッシュしないようにする
 CHANNEL_ACCESS_TOKEN = os.environ.get("CHANNEL_ACCESS_TOKEN")
 CHANNEL_SECRET = os.environ.get("CHANNEL_SECRET")
-SOCCER_API_KEY = os.environ.get("SOCCER_API_KEY")
+DEFAULT_SEASON = int(os.environ.get("SOCCER_SEASON", "2024"))
+DATA_FILE = Path(__file__).with_name("soccer_data.json")
+JST = timezone(timedelta(hours=9))
 
-if not all([CHANNEL_ACCESS_TOKEN, CHANNEL_SECRET, SOCCER_API_KEY]):
-    print("エラー: 必要な環境変数が設定されていません。")
-    exit()
+if not all([CHANNEL_ACCESS_TOKEN, CHANNEL_SECRET]):
+    print("Error: CHANNEL_ACCESS_TOKEN and CHANNEL_SECRET are required.")
+    raise SystemExit(1)
 
-# --- LINE Bot APIの初期化 ---
-LINE_BOT_API = LineBotApi(CHANNEL_ACCESS_TOKEN)
+line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
 
-# --- ★★★ 追加点1: 日本語・通称と英語名の対応表 ★★★ ---
-TEAM_NAME_MAP = {
-    "アーセナル": "Arsenal",
-    "マンチェスターシティ": "Manchester City",
-    "マンシティ": "Manchester City",
-    "マンチェスターユナイテッド": "Manchester United",
-    "マンU": "Manchester United",
-    "リバプール": "Liverpool",
-    "チェルシー": "Chelsea",
-    "トッテナム": "Tottenham",
-    "レアル": "Real Madrid",
-    "レアルマドリード": "Real Madrid",
-    "バルセロナ": "Barcelona",
-    "バルサ": "Barcelona",
-    "アトレティコ": "Atletico Madrid",
-    "バイエルン": "Bayern Munich",
-    "ドルトムント": "Dortmund",
-    "psg": "PSG",
-    "パリサンジェルマン": "PSG",
-    "インテル": "Inter",
-    "ミラン": "AC Milan",
-    "ユベントス": "Juventus",
-    "ガンバ大阪": "Gamba Osaka",
-    "ヴィッセル神戸": "Vissel Kobe",
-    "浦和レッズ": "Urawa Red Diamonds",
-}
 
-def get_team_id(team_name: str) -> int | None:
-    """
-    ★★★ 追加点2: チーム名からチームIDを検索する関数 ★★★
-    API-Footballの/teamsエンドポイントを使用してチームIDを取得する
-    """
-    url = "https://v3.football.api-sports.io/teams"
-    headers = {'x-apisports-key': SOCCER_API_KEY}
-    params = {'name': team_name}
-    
-    try:
-        response = requests.get(url, headers=headers, params=params)
-        response.raise_for_status()
-        data = response.json()
-        
-        # 検索結果があり、チーム名が完全一致または部分一致する場合
-        if data['results'] > 0:
-            # 複数の候補から最も一致しそうなものを探す（ここでは単純に最初の候補を使用）
-            team_id = data['response'][0]['team']['id']
-            found_name = data['response'][0]['team']['name']
-            print(f"チームが見つかりました: '{found_name}' (ID: {team_id})")
-            return team_id
-        return None
-    except requests.exceptions.RequestException as e:
-        print(f"チームID検索中にエラー: {e}")
-        return None
+def normalize_text(value: str) -> str:
+    return " ".join(value.casefold().strip().split())
 
-def get_fixtures_by_team(team_id: int, season: int) -> str:
-    """
-    指定されたチームIDとシーズンの試合結果を取得して、整形された文字列を返す
-    """
-    url = "https://v3.football.api-sports.io/fixtures"
-    headers = {'x-apisports-key': SOCCER_API_KEY}
-    # リーグIDを削除し、チームIDとシーズンだけで検索（全コンペティションが対象になる）
-    params = {'season': season, 'team': team_id}
-    
-    try:
-        r = requests.get(url, headers=headers, params=params)
-        r.raise_for_status()
-        data = r.json()
 
-        if data['results'] == 0:
-            return "このチームの試合データは見つかりませんでした。"
-        
-        fixtures = data['response']
-        sorted_fixtures = sorted(fixtures, key=lambda x: x['fixture']['date'])
-        
-        # 返信用のメッセージリスト
-        messages = []
-        for fixture in sorted_fixtures:
-            fixture_date_utc = datetime.fromisoformat(fixture['fixture']['date'].replace("Z", "+00:00"))
-            fixture_date_jst = fixture_date_utc.strftime('%Y-%m-%d %H:%M')
-            home_team = fixture['teams']['home']['name']
-            away_team = fixture['teams']['away']['name']
-            
-            if fixture['fixture']['status']['long'] == "Match Finished":
-                home_goals = fixture['goals']['home']
-                away_goals = fixture['goals']['away']
-                result = f"{fixture_date_jst}\n{home_team} {home_goals} - {away_goals} {away_team}"
-            else:
-                result = f"{fixture_date_jst}\n{home_team} vs {away_team}"
-            
-            messages.append(result)
-        
-        # メッセージが長くなりすぎないように最新5件などに制限する
-        if len(messages) > 10:
-             return "【最近の試合結果】\n\n" + "\n\n".join(messages[-10:]) # 直近10件
-        else:
-             return "【試合結果】\n\n" + "\n\n".join(messages)
+class SoccerRepository:
+    def __init__(self, data_file: Path) -> None:
+        self.data_file = data_file
+        self._data = self._load_data()
+        self._teams_by_id = {
+            int(team["id"]): team for team in self._data.get("teams", [])
+        }
 
-    except requests.exceptions.HTTPError as e:
-        return f"APIエラーが発生しました (HTTP {e.response.status_code})。キーが有効か確認してください。"
-    except Exception as e:
-        return f"試合結果の取得中にエラーが発生しました: {e}"
+    def _load_data(self) -> dict[str, Any]:
+        with self.data_file.open(encoding="utf-8") as file:
+            return json.load(file)
+
+    def list_teams(self, query: str | None = None) -> list[dict[str, Any]]:
+        teams = self._data.get("teams", [])
+        if not query:
+            return teams
+
+        normalized_query = normalize_text(query)
+        return [
+            team
+            for team in teams
+            if self._team_matches(team, normalized_query)
+        ]
+
+    def get_team(self, team_id: int) -> dict[str, Any] | None:
+        return self._teams_by_id.get(team_id)
+
+    def find_team(self, query: str) -> dict[str, Any] | None:
+        normalized_query = normalize_text(query)
+        exact_matches = [
+            team
+            for team in self._data.get("teams", [])
+            if self._team_matches(team, normalized_query, exact=True)
+        ]
+        if exact_matches:
+            return exact_matches[0]
+
+        partial_matches = self.list_teams(query)
+        return partial_matches[0] if partial_matches else None
+
+    def list_fixtures(
+        self,
+        team_id: int,
+        season: int | None = None,
+    ) -> list[dict[str, Any]]:
+        fixtures = []
+        for fixture in self._data.get("fixtures", []):
+            if season is not None and int(fixture["season"]) != season:
+                continue
+            if team_id in [int(fixture["home_team_id"]), int(fixture["away_team_id"])]:
+                fixtures.append(fixture)
+
+        return sorted(fixtures, key=lambda fixture: fixture["date"])
+
+    def _team_matches(
+        self,
+        team: dict[str, Any],
+        normalized_query: str,
+        exact: bool = False,
+    ) -> bool:
+        candidates = [team["name"], *team.get("aliases", [])]
+        normalized_candidates = [normalize_text(candidate) for candidate in candidates]
+        if exact:
+            return normalized_query in normalized_candidates
+
+        return any(
+            normalized_query in candidate or candidate in normalized_query
+            for candidate in normalized_candidates
+        )
+
+
+repository = SoccerRepository(DATA_FILE)
+
+
+def format_fixture(fixture: dict[str, Any]) -> str:
+    fixture_date = datetime.fromisoformat(
+        fixture["date"].replace("Z", "+00:00")
+    ).astimezone(JST)
+    formatted_date = fixture_date.strftime("%Y-%m-%d %H:%M")
+    home_team = repository.get_team(int(fixture["home_team_id"]))
+    away_team = repository.get_team(int(fixture["away_team_id"]))
+
+    home_name = home_team["name"] if home_team else fixture["home_team_id"]
+    away_name = away_team["name"] if away_team else fixture["away_team_id"]
+
+    if fixture["status"] == "finished":
+        return (
+            f"{formatted_date}\n"
+            f"{home_name} {fixture['home_goals']} - {fixture['away_goals']} {away_name}"
+        )
+
+    return f"{formatted_date}\n{home_name} vs {away_name}"
+
+
+def format_fixtures_for_reply(team_name: str, fixtures: list[dict[str, Any]]) -> str:
+    if not fixtures:
+        return f"{team_name} の試合データは見つかりませんでした。"
+
+    latest_fixtures = fixtures[-10:]
+    fixture_text = "\n\n".join(format_fixture(fixture) for fixture in latest_fixtures)
+    return f"【{team_name} 試合結果】\n\n{fixture_text}"
+
 
 @app.get("/")
-def read_root():
+def read_root() -> dict[str, str]:
     return {"message": "Soccer Results Bot is running"}
 
+
+@app.get("/api/teams")
+def list_teams(
+    query: str | None = Query(default=None, description="Team name or alias"),
+) -> dict[str, Any]:
+    teams = repository.list_teams(query)
+    return {"results": len(teams), "teams": teams}
+
+
+@app.get("/api/teams/{team_id}")
+def get_team(team_id: int) -> dict[str, Any]:
+    team = repository.get_team(team_id)
+    if team is None:
+        raise HTTPException(status_code=404, detail="Team not found")
+    return team
+
+
+@app.get("/api/teams/{team_id}/fixtures")
+def list_team_fixtures(
+    team_id: int,
+    season: int | None = Query(default=None),
+) -> dict[str, Any]:
+    if repository.get_team(team_id) is None:
+        raise HTTPException(status_code=404, detail="Team not found")
+
+    fixtures = repository.list_fixtures(team_id=team_id, season=season)
+    return {"results": len(fixtures), "fixtures": fixtures}
+
+
 @app.post("/callback")
-async def callback(request: Request, background_tasks: BackgroundTasks, x_line_signature: str = Header(None)):
+async def callback(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    x_line_signature: str = Header(None),
+) -> dict[str, str]:
     body = await request.body()
     try:
-        background_tasks.add_task(handler.handle, body.decode("utf-8"), x_line_signature)
+        background_tasks.add_task(
+            handler.handle,
+            body.decode("utf-8"),
+            x_line_signature,
+        )
     except InvalidSignatureError:
         raise HTTPException(status_code=400, detail="Invalid signature")
     return {"status": "ok"}
 
 
-# --- ★★★ 修正点3: メッセージ処理のロジックを大幅に変更 ★★★ ---
 @handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
+def handle_message(event: MessageEvent) -> None:
     user_text = event.message.text.strip()
-    
-    # ユーザー入力を小文字に変換して、辞書に存在するかチェック
-    search_name_lower = user_text.lower()
-    
-    # 英語名に変換
-    team_name_en = TEAM_NAME_MAP.get(search_name_lower, user_text) # 辞書になければ元のテキストを使用
-    
-    # チームIDを検索
-    team_id = get_team_id(team_name_en)
-    
-    if team_id:
-        # 2024年6月現在は、2023-24シーズンが直近なので2023を指定
-        # 必要に応じて、現在の年を取得するように変更可能
-        season = 2022
-        reply_text = get_fixtures_by_team(team_id=team_id, season=season)
+    team = repository.find_team(user_text)
+
+    if team:
+        fixtures = repository.list_fixtures(
+            team_id=int(team["id"]),
+            season=DEFAULT_SEASON,
+        )
+        reply_text = format_fixtures_for_reply(team["name"], fixtures)
     else:
-        reply_text = f"「{user_text}」というチームは見つかりませんでした。\n英語名（例: Arsenal）や、よく使われる通称でお試しください。"
+        reply_text = (
+            f"「{user_text}」というチームは見つかりませんでした。\n"
+            "英語名、正式名、またはよく使われる略称で試してください。"
+        )
 
     try:
-        LINE_BOT_API.reply_message(event.reply_token, TextSendMessage(text=reply_text))
-    except Exception as e:
-        print(f"メッセージの返信中にエラー: {e}")
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+    except Exception as exc:
+        print(f"Error while replying to LINE message: {exc}")
