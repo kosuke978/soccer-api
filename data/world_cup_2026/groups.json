@@ -1,0 +1,14 @@
+[
+  { "id": "A", "name": "Group A", "teams": [1, 2, 3, 4] },
+  { "id": "B", "name": "Group B", "teams": [5, 6, 7, 8] },
+  { "id": "C", "name": "Group C", "teams": [9, 10, 11, 12] },
+  { "id": "D", "name": "Group D", "teams": [13, 14, 15, 16] },
+  { "id": "E", "name": "Group E", "teams": [17, 18, 19, 20] },
+  { "id": "F", "name": "Group F", "teams": [21, 22, 23, 24] },
+  { "id": "G", "name": "Group G", "teams": [25, 26, 27, 28] },
+  { "id": "H", "name": "Group H", "teams": [29, 30, 31, 32] },
+  { "id": "I", "name": "Group I", "teams": [33, 34, 35, 36] },
+  { "id": "J", "name": "Group J", "teams": [37, 38, 39, 40] },
+  { "id": "K", "name": "Group K", "teams": [41, 42, 43, 44] },
+  { "id": "L", "name": "Group L", "teams": [45, 46, 47, 48] }
+]

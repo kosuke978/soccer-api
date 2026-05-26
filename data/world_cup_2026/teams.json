@@ -1,0 +1,290 @@
+[
+  {
+    "id": 1,
+    "name": "United States",
+    "confederation": "CONCACAF",
+    "aliases": ["USA", "US", "\u30a2\u30e1\u30ea\u30ab", "\u7c73\u56fd"]
+  },
+  {
+    "id": 2,
+    "name": "Japan",
+    "confederation": "AFC",
+    "aliases": ["JPN", "\u65e5\u672c"]
+  },
+  {
+    "id": 3,
+    "name": "Ghana",
+    "confederation": "CAF",
+    "aliases": ["GHA", "\u30ac\u30fc\u30ca"]
+  },
+  {
+    "id": 4,
+    "name": "Serbia",
+    "confederation": "UEFA",
+    "aliases": ["SRB", "\u30bb\u30eb\u30d3\u30a2"]
+  },
+  {
+    "id": 5,
+    "name": "Mexico",
+    "confederation": "CONCACAF",
+    "aliases": ["MEX", "\u30e1\u30ad\u30b7\u30b3"]
+  },
+  {
+    "id": 6,
+    "name": "Germany",
+    "confederation": "UEFA",
+    "aliases": ["GER", "\u30c9\u30a4\u30c4"]
+  },
+  {
+    "id": 7,
+    "name": "South Korea",
+    "confederation": "AFC",
+    "aliases": ["KOR", "\u97d3\u56fd", "Korea Republic"]
+  },
+  {
+    "id": 8,
+    "name": "Ecuador",
+    "confederation": "CONMEBOL",
+    "aliases": ["ECU", "\u30a8\u30af\u30a2\u30c9\u30eb"]
+  },
+  {
+    "id": 9,
+    "name": "Canada",
+    "confederation": "CONCACAF",
+    "aliases": ["CAN", "\u30ab\u30ca\u30c0"]
+  },
+  {
+    "id": 10,
+    "name": "France",
+    "confederation": "UEFA",
+    "aliases": ["FRA", "\u30d5\u30e9\u30f3\u30b9"]
+  },
+  {
+    "id": 11,
+    "name": "Morocco",
+    "confederation": "CAF",
+    "aliases": ["MAR", "\u30e2\u30ed\u30c3\u30b3"]
+  },
+  {
+    "id": 12,
+    "name": "Saudi Arabia",
+    "confederation": "AFC",
+    "aliases": ["KSA", "\u30b5\u30a6\u30b8"]
+  },
+  {
+    "id": 13,
+    "name": "Brazil",
+    "confederation": "CONMEBOL",
+    "aliases": ["BRA", "\u30d6\u30e9\u30b8\u30eb"]
+  },
+  {
+    "id": 14,
+    "name": "Spain",
+    "confederation": "UEFA",
+    "aliases": ["ESP", "\u30b9\u30da\u30a4\u30f3"]
+  },
+  {
+    "id": 15,
+    "name": "Australia",
+    "confederation": "AFC",
+    "aliases": ["AUS", "\u30aa\u30fc\u30b9\u30c8\u30e9\u30ea\u30a2"]
+  },
+  {
+    "id": 16,
+    "name": "Nigeria",
+    "confederation": "CAF",
+    "aliases": ["NGA", "\u30ca\u30a4\u30b8\u30a7\u30ea\u30a2"]
+  },
+  {
+    "id": 17,
+    "name": "Argentina",
+    "confederation": "CONMEBOL",
+    "aliases": ["ARG", "\u30a2\u30eb\u30bc\u30f3\u30c1\u30f3"]
+  },
+  {
+    "id": 18,
+    "name": "Netherlands",
+    "confederation": "UEFA",
+    "aliases": ["NED", "\u30aa\u30e9\u30f3\u30c0"]
+  },
+  {
+    "id": 19,
+    "name": "Senegal",
+    "confederation": "CAF",
+    "aliases": ["SEN", "\u30bb\u30cd\u30ac\u30eb"]
+  },
+  {
+    "id": 20,
+    "name": "Peru",
+    "confederation": "CONMEBOL",
+    "aliases": ["PER", "\u30da\u30eb\u30fc"]
+  },
+  {
+    "id": 21,
+    "name": "England",
+    "confederation": "UEFA",
+    "aliases": ["ENG", "\u30a4\u30f3\u30b0\u30e9\u30f3\u30c9"]
+  },
+  {
+    "id": 22,
+    "name": "Italy",
+    "confederation": "UEFA",
+    "aliases": ["ITA", "\u30a4\u30bf\u30ea\u30a2"]
+  },
+  {
+    "id": 23,
+    "name": "Switzerland",
+    "confederation": "UEFA",
+    "aliases": ["SUI", "\u30b9\u30a4\u30b9"]
+  },
+  {
+    "id": 24,
+    "name": "Uruguay",
+    "confederation": "CONMEBOL",
+    "aliases": ["URU", "\u30a6\u30eb\u30b0\u30a2\u30a4"]
+  },
+  {
+    "id": 25,
+    "name": "Portugal",
+    "confederation": "UEFA",
+    "aliases": ["POR", "\u30dd\u30eb\u30c8\u30ac\u30eb"]
+  },
+  {
+    "id": 26,
+    "name": "Belgium",
+    "confederation": "UEFA",
+    "aliases": ["BEL", "\u30d9\u30eb\u30ae\u30fc"]
+  },
+  {
+    "id": 27,
+    "name": "Tunisia",
+    "confederation": "CAF",
+    "aliases": ["TUN", "\u30c1\u30e5\u30cb\u30b8\u30a2"]
+  },
+  {
+    "id": 28,
+    "name": "Costa Rica",
+    "confederation": "CONCACAF",
+    "aliases": ["CRC", "\u30b3\u30b9\u30bf\u30ea\u30ab"]
+  },
+  {
+    "id": 29,
+    "name": "Colombia",
+    "confederation": "CONMEBOL",
+    "aliases": ["COL", "\u30b3\u30ed\u30f3\u30d3\u30a2"]
+  },
+  {
+    "id": 30,
+    "name": "Denmark",
+    "confederation": "UEFA",
+    "aliases": ["DEN", "\u30c7\u30f3\u30de\u30fc\u30af"]
+  },
+  {
+    "id": 31,
+    "name": "Iran",
+    "confederation": "AFC",
+    "aliases": ["IRN", "\u30a4\u30e9\u30f3"]
+  },
+  {
+    "id": 32,
+    "name": "Wales",
+    "confederation": "UEFA",
+    "aliases": ["WAL", "\u30a6\u30a7\u30fc\u30eb\u30ba"]
+  },
+  {
+    "id": 33,
+    "name": "Croatia",
+    "confederation": "UEFA",
+    "aliases": ["CRO", "\u30af\u30ed\u30a2\u30c1\u30a2"]
+  },
+  {
+    "id": 34,
+    "name": "Poland",
+    "confederation": "UEFA",
+    "aliases": ["POL", "\u30dd\u30fc\u30e9\u30f3\u30c9"]
+  },
+  {
+    "id": 35,
+    "name": "Cameroon",
+    "confederation": "CAF",
+    "aliases": ["CMR", "\u30ab\u30e1\u30eb\u30fc\u30f3"]
+  },
+  {
+    "id": 36,
+    "name": "New Zealand",
+    "confederation": "OFC",
+    "aliases": ["NZL", "\u30cb\u30e5\u30fc\u30b8\u30fc\u30e9\u30f3\u30c9"]
+  },
+  {
+    "id": 37,
+    "name": "Sweden",
+    "confederation": "UEFA",
+    "aliases": ["SWE", "\u30b9\u30a6\u30a7\u30fc\u30c7\u30f3"]
+  },
+  {
+    "id": 38,
+    "name": "Turkey",
+    "confederation": "UEFA",
+    "aliases": ["TUR", "\u30c8\u30eb\u30b3"]
+  },
+  {
+    "id": 39,
+    "name": "Chile",
+    "confederation": "CONMEBOL",
+    "aliases": ["CHI", "\u30c1\u30ea"]
+  },
+  {
+    "id": 40,
+    "name": "Qatar",
+    "confederation": "AFC",
+    "aliases": ["QAT", "\u30ab\u30bf\u30fc\u30eb"]
+  },
+  {
+    "id": 41,
+    "name": "Norway",
+    "confederation": "UEFA",
+    "aliases": ["NOR", "\u30ce\u30eb\u30a6\u30a7\u30fc"]
+  },
+  {
+    "id": 42,
+    "name": "Egypt",
+    "confederation": "CAF",
+    "aliases": ["EGY", "\u30a8\u30b8\u30d7\u30c8"]
+  },
+  {
+    "id": 43,
+    "name": "South Africa",
+    "confederation": "CAF",
+    "aliases": ["RSA", "\u5357\u30a2\u30d5\u30ea\u30ab"]
+  },
+  {
+    "id": 44,
+    "name": "Ukraine",
+    "confederation": "UEFA",
+    "aliases": ["UKR", "\u30a6\u30af\u30e9\u30a4\u30ca"]
+  },
+  {
+    "id": 45,
+    "name": "Scotland",
+    "confederation": "UEFA",
+    "aliases": ["SCO", "\u30b9\u30b3\u30c3\u30c8\u30e9\u30f3\u30c9"]
+  },
+  {
+    "id": 46,
+    "name": "Greece",
+    "confederation": "UEFA",
+    "aliases": ["GRE", "\u30ae\u30ea\u30b7\u30e3"]
+  },
+  {
+    "id": 47,
+    "name": "Austria",
+    "confederation": "UEFA",
+    "aliases": ["AUT", "\u30aa\u30fc\u30b9\u30c8\u30ea\u30a2"]
+  },
+  {
+    "id": 48,
+    "name": "Czech Republic",
+    "confederation": "UEFA",
+    "aliases": ["CZE", "\u30c1\u30a7\u30b3"]
+  }
+]

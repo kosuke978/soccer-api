@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
+    <title>{{ tournament.name }} {{ tournament.year }} | Hub</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', path='css/styles.css') }}"
+    />
+    <script
+      src="{{ url_for('static', path='js/app.js') }}"
+      defer
+    ></script>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="container">
+        <p class="eyebrow">World Cup</p>
+        <h1 id="tournament-name">
+          {{ tournament.name }} {{ tournament.year }}
+        </h1>
+        <p class="subtitle" id="tournament-meta">
+          {{ tournament.host_countries | join(', ') }} /
+          {{ tournament.start_date }} - {{ tournament.end_date }}
+        </p>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="panel">
+        <div class="panel-header">
+          <h2>大会概要</h2>
+          <span class="badge">公式戦フォーマット</span>
+        </div>
+        <div class="panel-body">
+          <div class="overview-grid">
+            <div>
+              <p class="label">開催国</p>
+              <p id="hosts" class="value">
+                {{ tournament.host_countries | join(', ') }}
+              </p>
+            </div>
+            <div>
+              <p class="label">開催期間</p>
+              <p id="dates" class="value">
+                {{ tournament.start_date }} - {{ tournament.end_date }}
+              </p>
+            </div>
+            <div>
+              <p class="label">参加国</p>
+              <p id="team-count" class="value">48 teams</p>
+            </div>
+          </div>
+          <p class="description">
+            グループステージから決勝までの情報を一つのページで把握できる
+            World Cup Hub です。
+          </p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>チーム検索</h2>
+          <span class="badge">API連動</span>
+        </div>
+        <div class="panel-body">
+          <input
+            id="team-search"
+            class="search-input"
+            type="text"
+            placeholder="国名で検索（例: Japan, Brazil）"
+          />
+          <div id="team-results" class="results-grid"></div>
+          <div id="team-matches" class="match-list"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>グループ</h2>
+          <span class="badge">A - L</span>
+        </div>
+        <div id="groups-grid" class="groups-grid"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>今後の試合</h2>
+          <span class="badge">Upcoming</span>
+        </div>
+        <div id="upcoming-list" class="match-list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>最近の結果</h2>
+          <span class="badge">Results</span>
+        </div>
+        <div id="recent-list" class="match-list"></div>
+      </section>
+    </main>
+  </body>
+</html>
